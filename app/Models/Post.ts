@@ -1,11 +1,14 @@
+import { BaseModel, BelongsTo, beforeCreate, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { v4 as uuidv4 } from 'uuid'
 
 import User from './User'
 
 export default class Post extends BaseModel {
+  public static selfAssignPrimaryKey = true
+
   @column({ isPrimary: true })
-  public id: number
+  public id: string
 
   @column({ serializeAs: null })
   public userId: number
@@ -24,4 +27,9 @@ export default class Post extends BaseModel {
 
   @belongsTo(() => User)
   public author: BelongsTo<typeof User>
+
+  @beforeCreate()
+  public static async setId(post: Post) {
+    post.id = uuidv4()
+  }
 }
