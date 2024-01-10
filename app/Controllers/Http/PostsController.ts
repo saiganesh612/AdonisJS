@@ -1,7 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
-import Post from 'App/Models/Post'
 
+import Post from 'App/Models/Post'
 import User from 'App/Models/User'
 
 export default class PostsController {
@@ -34,33 +34,29 @@ export default class PostsController {
     return { message: 'Post Retrived', post }
   }
 
-  public async update({ request, params, auth, response }: HttpContextContract) {
+  public async update({ request, params, bouncer }: HttpContextContract) {
     const postId = params.id
     const payload = request.body()
 
     const post = await Post.findOrFail(postId)
     await post.load('author')
 
-    // We can use bouncers here
-    const authUser = auth.use('api').user!.serializeAttributes()
-    if (authUser.email !== post.author.email)
-      return response.forbidden('Not authorised to update this post')
+    // Checking Authorization whether currently logged have access to update the post.
+    await bouncer.with('PostPolicy').authorize('update', post)
 
     post.$attributes = { ...post.$attributes, ...payload }
     post.save()
     return { message: 'Post Updated', post }
   }
 
-  public async destroy({ params, auth, response }: HttpContextContract) {
+  public async destroy({ params, bouncer }: HttpContextContract) {
     const postId = params.id
 
     const post = await Post.findOrFail(postId)
     await post.load('author')
 
-    // We can use bouncers here
-    const authUser = auth.use('api').user!.serializeAttributes()
-    if (authUser.email !== post.author.email)
-      return response.forbidden('Not authorised to delete this post')
+    // Checking Authorization whether currently logged have access to delete the post.
+    await bouncer.with('PostPolicy').authorize('delete', post)
 
     await post.delete()
     return { message: 'Post Deleted', post }
