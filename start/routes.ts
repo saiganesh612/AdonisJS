@@ -19,7 +19,12 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import authenticationRoutes from './routes/Auth.routes'
 
 Route.get('/', async () => {
   return { hello: 'world' }
 })
+
+Route.group(() => {
+  authenticationRoutes()
+}).prefix('api')
