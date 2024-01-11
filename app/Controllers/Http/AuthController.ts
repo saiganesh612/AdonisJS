@@ -44,11 +44,4 @@ export default class AuthController {
     auth.use('api').revoke()
     return { message: 'User logged out.' }
   }
-
-  public async getProfile({ auth }: HttpContextContract) {
-    const authUser = auth.use('api').user!.serializeAttributes()
-
-    const user = await User.findByOrFail('email', authUser.email)
-    return { data: user }
-  }
 }

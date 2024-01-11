@@ -46,7 +46,7 @@ export default class PostsController {
     await bouncer.with('PostPolicy').authorize('update', post)
 
     post.$attributes = { ...post.$attributes, ...payload }
-    post.save()
+    await post.save()
     return { message: 'Post Updated', post }
   }
 
