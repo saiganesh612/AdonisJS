@@ -1,17 +1,14 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
 
 import User from 'App/Models/User'
 
+import CreateUserValidator from 'App/Validators/CreateUserValidator'
+
 export default class AuthController {
   public async register({ request, response }: HttpContextContract) {
-    const userSchema = schema.create({
-      username: schema.string({ trim: true }),
-      email: schema.string([rules.trim(), rules.email()]),
-      password: schema.string([rules.minLength(8)]),
-    })
+    // Validating request data
+    const data = await request.validate(CreateUserValidator)
 
-    const data = await request.validate({ schema: userSchema })
     const user = await User.findBy('email', data.email)
     if (!user) {
       const newUser = await User.create(data)
@@ -38,7 +35,6 @@ export default class AuthController {
 
   public async logout({ auth }: HttpContextContract) {
     console.log('user: ', auth.user)
-    // auth.logout()
     auth.use('api').revoke()
     return { message: 'User logged out.' }
   }
