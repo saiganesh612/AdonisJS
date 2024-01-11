@@ -1,3 +1,4 @@
+import { Attachment } from '@ioc:Adonis/Addons/AttachmentLite'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import User from 'App/Models/User'
@@ -7,11 +8,16 @@ import CreateUserValidator from 'App/Validators/CreateUserValidator'
 export default class AuthController {
   public async register({ request, response }: HttpContextContract) {
     // Validating request data
-    const data = await request.validate(CreateUserValidator)
+    const { username, email, password, avatar } = await request.validate(CreateUserValidator)
 
-    const user = await User.findBy('email', data.email)
+    const user = await User.findBy('email', email)
     if (!user) {
-      const newUser = await User.create(data)
+      const newUser = await User.create({
+        username,
+        email,
+        password,
+        avatar: avatar ? Attachment.fromFile(avatar) : null,
+      })
       response.status(201)
       return { message: 'User created!', user: newUser }
     }
@@ -37,5 +43,12 @@ export default class AuthController {
     console.log('user: ', auth.user)
     auth.use('api').revoke()
     return { message: 'User logged out.' }
+  }
+
+  public async getProfile({ auth }: HttpContextContract) {
+    const authUser = auth.use('api').user!.serializeAttributes()
+
+    const user = await User.findByOrFail('email', authUser.email)
+    return { data: user }
   }
 }

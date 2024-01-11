@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { Attachment } from '@ioc:Adonis/Addons/AttachmentLite'
 
 import Post from 'App/Models/Post'
 import User from 'App/Models/User'
@@ -15,11 +16,13 @@ export default class PostsController {
 
   public async store({ request, response, auth }: HttpContextContract) {
     // Validating request data
-    const payload = await request.validate(CreatePostValidator)
+    const { title, content, coverImage } = await request.validate(CreatePostValidator)
 
     const authUser = auth.use('api').user!.serializeAttributes()
     const user = await User.findByOrFail('email', authUser.email)
-    const post = await user.related('posts').create(payload)
+    const post = await user
+      .related('posts')
+      .create({ title, content, cover_image: coverImage ? Attachment.fromFile(coverImage) : null })
     response.status(201)
     return { message: 'New post created', post }
   }

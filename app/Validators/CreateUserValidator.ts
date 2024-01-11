@@ -12,6 +12,7 @@ export default class CreateUserValidator {
       rules.unique({ table: 'users', column: 'email' }),
     ]),
     password: schema.string([rules.minLength(8)]),
+    avatar: schema.file.optional({ extnames: ['jpeg', 'jpg', 'png'] }),
   })
 
   public messages: CustomMessages = {}

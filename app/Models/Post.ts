@@ -1,4 +1,5 @@
 import { BaseModel, BelongsTo, beforeCreate, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { attachment, AttachmentContract } from '@ioc:Adonis/Addons/AttachmentLite'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -18,6 +19,9 @@ export default class Post extends BaseModel {
 
   @column()
   public content: string
+
+  @attachment({ preComputeUrl: true })
+  public cover_image: AttachmentContract | null
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

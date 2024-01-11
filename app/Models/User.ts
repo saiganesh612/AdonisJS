@@ -1,6 +1,8 @@
-import { DateTime } from 'luxon'
-import Hash from '@ioc:Adonis/Core/Hash'
 import { column, beforeSave, BaseModel, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { AttachmentContract, attachment } from '@ioc:Adonis/Addons/AttachmentLite'
+import Hash from '@ioc:Adonis/Core/Hash'
+import { DateTime } from 'luxon'
+
 import Post from './Post'
 
 export default class User extends BaseModel {
@@ -15,6 +17,9 @@ export default class User extends BaseModel {
 
   @column({ serializeAs: null })
   public password: string
+
+  @attachment({ preComputeUrl: true, folder: 'avatars' })
+  public avatar: AttachmentContract | null
 
   @column({ serializeAs: null })
   public rememberMeToken: string | null
